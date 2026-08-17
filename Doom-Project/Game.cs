@@ -131,6 +131,10 @@ namespace Doom_Project
         internal int _highScore = 0;
         internal int _highWave = 0;
 
+        // final score when game over - main menu reads this to show last run
+        internal int _finalScore = 0;
+        internal int _finalWave = 0;
+
         // game state - controls whether we're still playing
         internal string _gameState = "playing";  // "playing", "gameover", or "win"
         internal double _stateTimer = 4.0;       // seconds before closing after game over/win
@@ -275,6 +279,12 @@ namespace Doom_Project
             // update game logic
             GameUpdate();
 
+            // if GameUpdate triggered close (game over/win), stop here
+            if (!_running)
+            {
+                return;
+            }
+
             // render frame (draw sky/floor/walls/sprites into _frameBuf)
             _renderer.RenderFrame();
 
@@ -291,12 +301,16 @@ namespace Doom_Project
 
         private void GameUpdate()
         {
-            // if game over or won, countdown then close
+            // if game over or won, countdown then return to menu
             if (_gameState != "playing")
             {
                 _stateTimer -= _dt;
                 if (_stateTimer <= 0)
                 {
+                    // pass score back to main menu
+                    _finalScore = _score;
+                    _finalWave = _wave;
+                    DialogResult = DialogResult.OK;
                     Close();
                 }
                 return;

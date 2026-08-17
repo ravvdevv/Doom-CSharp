@@ -23,6 +23,11 @@ namespace Doom_Project
         private readonly Timer _bgFadeTimer = new Timer();
         private Point _titlePos;
 
+        // last run score - shows briefly after game over
+        private Label _lbLastRun;
+        private Timer _lastRunFadeTimer;
+        private float _lastRunAlpha = 0f;
+
         public Main()
         {
             InitializeComponent();
@@ -48,6 +53,53 @@ namespace Doom_Project
 
             Resize += Main_Resize;
             LayoutMenu();
+            SetupLastRunLabel();
+        }
+
+        private void SetupLastRunLabel()
+        {
+            _lbLastRun = new Label();
+            _lbLastRun.AutoSize = true;
+            _lbLastRun.BackColor = Color.Transparent;
+            _lbLastRun.Font = new Font("Arial", 11f, FontStyle.Italic);
+            _lbLastRun.ForeColor = Color.FromArgb(160, 200, 160, 90);
+            _lbLastRun.Visible = false;
+            Controls.Add(_lbLastRun);
+
+            _lastRunFadeTimer = new Timer();
+            _lastRunFadeTimer.Interval = 30;
+            _lastRunFadeTimer.Tick += LastRunFadeTick;
+        }
+
+        private void LastRunFadeTick(object sender, EventArgs e)
+        {
+            _lastRunAlpha -= 0.01f;
+            if (_lastRunAlpha <= 0f)
+            {
+                _lastRunFadeTimer.Stop();
+                _lbLastRun.Visible = false;
+                return;
+            }
+            _lbLastRun.ForeColor = Color.FromArgb((int)(160 * _lastRunAlpha), 200, 160, 90);
+            Invalidate();
+        }
+
+        private void ShowLastRun(int score, int wave)
+        {
+            if (score <= 0) return;
+            _lbLastRun.Text = "Last run: " + score + " pts  |  Wave " + wave;
+            _lbLastRun.Visible = true;
+            _lastRunAlpha = 1f;
+            _lbLastRun.ForeColor = Color.FromArgb(160, 200, 160, 90);
+
+            // position below quit button
+            int x = btnQuit.Left;
+            int y = btnQuit.Bottom + 20;
+            _lbLastRun.Location = new Point(x, y);
+
+            // show for 5 seconds then fade
+            _lastRunFadeTimer.Stop();
+            _lastRunFadeTimer.Start();
         }
 
         private void LayoutMenu()
@@ -182,11 +234,16 @@ namespace Doom_Project
         private void btnStart_Click(object sender, EventArgs e)
         {
             Hide();
+            int finalScore = 0;
+            int finalWave = 0;
             using (Game game = new Game())
             {
                 game.ShowDialog();
+                finalScore = game._finalScore;
+                finalWave = game._finalWave;
             }
             Show();
+            ShowLastRun(finalScore, finalWave);
         }
 
         private void btnQuit_Click(object sender, EventArgs e)

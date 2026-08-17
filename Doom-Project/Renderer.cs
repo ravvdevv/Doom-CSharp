@@ -544,14 +544,18 @@ namespace Doom_Project
         // this copies our raw pixel array to the Bitmap so it can be drawn on screen
         public void Present()
         {
-            if (_g._frame == null || _g.IsDisposed)
+            if (_g._frame == null || _g.IsDisposed || !_g._running)
             {
                 return;
             }
-            Rectangle rect = new Rectangle(0, 0, Game.RenderW, Game.RenderH);
-            BitmapData data = _g._frame.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-            Marshal.Copy(_g._frameBuf, 0, data.Scan0, _g._frameBuf.Length);
-            _g._frame.UnlockBits(data);
+            try
+            {
+                Rectangle rect = new Rectangle(0, 0, Game.RenderW, Game.RenderH);
+                BitmapData data = _g._frame.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                Marshal.Copy(_g._frameBuf, 0, data.Scan0, _g._frameBuf.Length);
+                _g._frame.UnlockBits(data);
+            }
+            catch { }
         }
     }
 }
