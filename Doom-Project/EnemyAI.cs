@@ -97,6 +97,8 @@ namespace Doom_Project
                 }
 
                 // ATTACK STATE: swinging at the player
+                // when animation finishes, deal damage then enter cooldown
+                // cooldown prevents soldier from attacking again instantly
                 if (e.State == "attack")
                 {
                     e.StateTime += _g._dt;
@@ -127,6 +129,8 @@ namespace Doom_Project
                 }
 
                 // COOLDOWN STATE: pause between attacks
+                // enemy just stands there for AttackCooldown seconds before chasing again
+                // without this, soldier would attack every 0.7s which is way too fast
                 if (e.State == "cooldown")
                 {
                     e.StateTime += _g._dt;

@@ -542,6 +542,9 @@ namespace Doom_Project
         // ================================================================
 
         // this copies our raw pixel array to the Bitmap so it can be drawn on screen
+        // present() copies our pixel buffer to the bitmap so it shows on screen
+        // try-catch needed because _frame can get disposed during game over
+        // (close() disposes the bitmap, but timer might fire one more time)
         public void Present()
         {
             if (_g._frame == null || _g.IsDisposed || !_g._running)

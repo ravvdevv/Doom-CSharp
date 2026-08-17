@@ -197,6 +197,9 @@ namespace Doom_Project
             //                          attack frames       attack rate  pain frames           pain rate
             //                          death frames        death rate   speed  hp   dmg  size  range
 
+            // soldier config - attack 0.12s per frame (was 0.08, too fast), 0.5s cooldown between attacks
+            // cooldown = after swing finishes, soldier waits before attacking again
+            //                           idle frames   idle spd    walk frames  walk spd   pain frames  pain spd    death frames  death spd   attack frames                                                                                         attack spd   spd   hp  dmg  size  range   cooldown
             types["soldier"] = LoadEnemyType(
                 Path.Combine(npc, "soldier"),
                 new string[] { "0" },                     0.15,
@@ -205,7 +208,7 @@ namespace Doom_Project
                 new string[] { "0" },                      0.35,
                 new string[] { "POSSM0", "POSSN0", "POSSO0", "POSSP0", "POSSQ0", "POSSR0", "POSSS0", "POSST0", "POSSU0" }, 0.12,
                 0.8, 100, 10, 0.7, 1.6,
-                0.5);
+                0.5);  // <-- 0.5s cooldown so soldier doesn't rapid fire
             types["soldier"].Name = "soldier";
 
             types["caco"] = LoadEnemyType(
@@ -250,7 +253,7 @@ namespace Doom_Project
             string[] painFrames, double painRate,
             string[] deathFrames, double deathRate,
             double speed, int health, int damage, double sizeTiles, double attackRange,
-            double attackCooldown = 0.0)
+            double attackCooldown = 0.0)  // optional: seconds between attacks (0 = no cooldown)
         {
             EnemyType t = new EnemyType();
             t.Idle = LoadFrames(dir, "idle", idleFrames);

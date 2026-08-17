@@ -24,6 +24,7 @@ namespace Doom_Project
         private Point _titlePos;
 
         // last run score - shows briefly after game over
+        // fades in with gold text, then fades out after 5 seconds
         private Label _lbLastRun;
         private Timer _lastRunFadeTimer;
         private float _lastRunAlpha = 0f;
@@ -56,6 +57,8 @@ namespace Doom_Project
             SetupLastRunLabel();
         }
 
+        // create the "last run" label - hidden by default
+        // only shows after player dies and returns to menu
         private void SetupLastRunLabel()
         {
             _lbLastRun = new Label();
@@ -231,6 +234,8 @@ namespace Doom_Project
             base.OnFormClosing(e);
         }
 
+        // when player clicks start, hide menu and open game
+        // after game over, read final score from game and show it on menu
         private void btnStart_Click(object sender, EventArgs e)
         {
             Hide();

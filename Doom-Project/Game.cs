@@ -279,7 +279,8 @@ namespace Doom_Project
             // update game logic
             GameUpdate();
 
-            // if GameUpdate triggered close (game over/win), stop here
+            // crash fix: GameUpdate can call Close() on game over, which disposes _frame
+            // without this check, the code below would try to draw on a disposed bitmap = crash
             if (!_running)
             {
                 return;
@@ -302,6 +303,7 @@ namespace Doom_Project
         private void GameUpdate()
         {
             // if game over or won, countdown then return to menu
+            // DialogResult.OK tells main menu to show our final score
             if (_gameState != "playing")
             {
                 _stateTimer -= _dt;
