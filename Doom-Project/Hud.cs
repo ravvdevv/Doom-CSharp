@@ -80,7 +80,15 @@ namespace Doom_Project
                 }
                 int ppx = pad + (int)(p.X * cell);
                 int ppy = pad + (int)(p.Y * cell);
-                Color dotColor = p.Type == "health" ? Color.FromArgb(180, 255, 255, 0) : Color.FromArgb(180, 80, 180, 255);
+                Color dotColor;
+                if (p.Type == "health")
+                {
+                    dotColor = Color.FromArgb(180, 255, 255, 0); // yellow
+                }
+                else
+                {
+                    dotColor = Color.FromArgb(180, 80, 180, 255); // blue
+                }
                 using (SolidBrush pickupDot = new SolidBrush(dotColor))
                 {
                     g.FillRectangle(pickupDot, ppx - 1, ppy - 1, 3, 3);

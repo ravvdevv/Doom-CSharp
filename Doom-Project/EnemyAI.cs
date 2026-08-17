@@ -325,22 +325,22 @@ namespace Doom_Project
 
             for (int i = 0; i < soldiers; i++)
             {
-                var pos = FindOpenTile(rng);
+                PointD pos = FindOpenTile(rng);
                 SpawnEnemy("soldier", pos.X, pos.Y);
             }
             for (int i = 0; i < cacos; i++)
             {
-                var pos = FindOpenTile(rng);
+                PointD pos = FindOpenTile(rng);
                 SpawnEnemy("caco", pos.X, pos.Y);
             }
             for (int i = 0; i < souls; i++)
             {
-                var pos = FindOpenTile(rng);
+                PointD pos = FindOpenTile(rng);
                 SpawnEnemy("soul", pos.X, pos.Y);
             }
             for (int i = 0; i < cybers; i++)
             {
-                var pos = FindOpenTile(rng);
+                PointD pos = FindOpenTile(rng);
                 SpawnEnemy("cyber", pos.X, pos.Y);
             }
 
@@ -350,12 +350,12 @@ namespace Doom_Project
             int ammoPickups = 2 + wave / 2;                  // more ammo as waves go up
             for (int i = 0; i < healthPickups; i++)
             {
-                var pos = FindOpenTile(rng);
+                PointD pos = FindOpenTile(rng);
                 _g._pickups.Add(new PickupItem { X = pos.X, Y = pos.Y, Type = "health" });
             }
             for (int i = 0; i < ammoPickups; i++)
             {
-                var pos = FindOpenTile(rng);
+                PointD pos = FindOpenTile(rng);
                 _g._pickups.Add(new PickupItem { X = pos.X, Y = pos.Y, Type = "ammo" });
             }
         }
