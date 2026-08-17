@@ -1,9 +1,12 @@
 .vs/
 bin/
 obj/
+packages/
 *.user
 *.suo
 *.cache
 *.dll
 *.exe
 *.pdb
+nuget.exe
+.gitconfig
