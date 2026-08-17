@@ -45,6 +45,7 @@ namespace Doom_Project
         public int Damage;          // how much damage it deals to player
         public double SizeTiles;    // how big it looks on screen (in tiles)
         public double AttackRange;  // how close it needs to be to attack
+        public double AttackCooldown; // seconds between attacks (prevents rapid fire)
     }
 
     // a health pack or ammo pack sitting on the map

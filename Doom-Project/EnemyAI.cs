@@ -109,7 +109,30 @@ namespace Doom_Project
                         {
                             _g._player.Damage(e.Type.Damage);
                         }
-                        e.State = "walk";  // go back to chasing
+                        // go to cooldown before next attack
+                        if (e.Type.AttackCooldown > 0)
+                        {
+                            e.State = "cooldown";
+                            e.StateTime = 0;
+                            e.Frame = 0;
+                        }
+                        else
+                        {
+                            e.State = "walk";
+                            e.StateTime = 0;
+                            e.Frame = 0;
+                        }
+                    }
+                    continue;
+                }
+
+                // COOLDOWN STATE: pause between attacks
+                if (e.State == "cooldown")
+                {
+                    e.StateTime += _g._dt;
+                    if (e.StateTime >= e.Type.AttackCooldown)
+                    {
+                        e.State = "walk";
                         e.StateTime = 0;
                         e.Frame = 0;
                     }

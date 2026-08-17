@@ -203,8 +203,9 @@ namespace Doom_Project
                 new string[] { "0", "1", "2", "3" },      0.18,
                 new string[] { "0", "1" },                 0.25,
                 new string[] { "0" },                      0.35,
-                new string[] { "POSSM0", "POSSN0", "POSSO0", "POSSP0", "POSSQ0", "POSSR0", "POSSS0", "POSST0", "POSSU0" }, 0.08,
-                0.8, 100, 10, 0.7, 1.6);
+                new string[] { "POSSM0", "POSSN0", "POSSO0", "POSSP0", "POSSQ0", "POSSR0", "POSSS0", "POSST0", "POSSU0" }, 0.12,
+                0.8, 100, 10, 0.7, 1.6,
+                0.5);
             types["soldier"].Name = "soldier";
 
             types["caco"] = LoadEnemyType(
@@ -248,7 +249,8 @@ namespace Doom_Project
             string[] attackFrames, double attackRate,
             string[] painFrames, double painRate,
             string[] deathFrames, double deathRate,
-            double speed, int health, int damage, double sizeTiles, double attackRange)
+            double speed, int health, int damage, double sizeTiles, double attackRange,
+            double attackCooldown = 0.0)
         {
             EnemyType t = new EnemyType();
             t.Idle = LoadFrames(dir, "idle", idleFrames);
@@ -266,6 +268,7 @@ namespace Doom_Project
             t.Damage = damage;
             t.SizeTiles = sizeTiles;
             t.AttackRange = attackRange;
+            t.AttackCooldown = attackCooldown;
             return t;
         }
 
