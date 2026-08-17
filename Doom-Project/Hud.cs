@@ -219,6 +219,29 @@ namespace Doom_Project
                     string scoreText = "SCORE: " + _g._score;
                     SizeF scoreSize = g.MeasureString(scoreText, font);
                     g.DrawString(scoreText, font, gold, _g.ClientSize.Width - scoreSize.Width - 16, 14);
+
+                    // high score below current score
+                    if (_g._highScore > 0)
+                    {
+                        string hiText = "BEST: " + _g._highScore + " (W" + _g._highWave + ")";
+                        SizeF hiSize = g.MeasureString(hiText, font);
+                        g.DrawString(hiText, font, gold, _g.ClientSize.Width - hiSize.Width - 16, 34);
+                    }
+                }
+            }
+
+            // new high score flash
+            if (_g._gameState == "gameover" && _g.IsNewHighScore())
+            {
+                using (Font font = new Font(FontFamily.GenericSansSerif, 28, FontStyle.Bold))
+                {
+                    using (SolidBrush flash = new SolidBrush(Color.FromArgb(200, 255, 215, 0)))
+                    {
+                        string newHi = "NEW HIGH SCORE!";
+                        SizeF sz = g.MeasureString(newHi, font);
+                        float nx = (_g.ClientSize.Width - sz.Width) / 2;
+                        g.DrawString(newHi, font, flash, nx, _g.ClientSize.Height / 2 + 30);
+                    }
                 }
             }
 

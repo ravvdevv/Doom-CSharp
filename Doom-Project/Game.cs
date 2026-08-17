@@ -127,6 +127,10 @@ namespace Doom_Project
         internal double _waveDelay = 0;       // seconds before next wave spawns
         internal bool _waveClear = false;     // true when all enemies dead, waiting for next wave
 
+        // high score - saved to file so it persists between sessions
+        internal int _highScore = 0;
+        internal int _highWave = 0;
+
         // game state - controls whether we're still playing
         internal string _gameState = "playing";  // "playing", "gameover", or "win"
         internal double _stateTimer = 4.0;       // seconds before closing after game over/win
@@ -228,6 +232,9 @@ namespace Doom_Project
 
             // setup the level - spawn enemies and pickups
             _enemyAI.SetupLevel();
+
+            // load high score from file
+            LoadHighScore();
 
             // wire up input handlers - without these, you can't move or shoot
             KeyDown += _player.OnKeyDown;
@@ -361,6 +368,46 @@ namespace Doom_Project
             {
                 g.DrawImage(_winImg, new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
             }
+        }
+
+        // ================================================================
+        //  HIGH SCORE - save best score to file
+        // ================================================================
+
+        private string HighScorePath
+        {
+            get { return Path.Combine(Application.StartupPath, "highscore.txt"); }
+        }
+
+        internal void LoadHighScore()
+        {
+            try
+            {
+                if (File.Exists(HighScorePath))
+                {
+                    string[] parts = File.ReadAllText(HighScorePath).Split(',');
+                    if (parts.Length == 2)
+                    {
+                        int.TryParse(parts[0], out _highScore);
+                        int.TryParse(parts[1], out _highWave);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        internal void SaveHighScore()
+        {
+            try
+            {
+                File.WriteAllText(HighScorePath, _score + "," + _wave);
+            }
+            catch { }
+        }
+
+        internal bool IsNewHighScore()
+        {
+            return _score > _highScore;
         }
 
         // ================================================================

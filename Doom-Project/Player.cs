@@ -410,6 +410,12 @@ namespace Doom_Project
                 _g._health = 0;
                 _g._gameState = "gameover";    // game over!
                 _g._stateTimer = 4.0;          // show game over screen for 4 seconds
+                if (_g.IsNewHighScore())
+                {
+                    _g._highScore = _g._score;
+                    _g._highWave = _g._wave;
+                }
+                _g.SaveHighScore();
             }
         }
     }
