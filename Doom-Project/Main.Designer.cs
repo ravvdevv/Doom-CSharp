@@ -67,7 +67,6 @@ namespace Doom_Project
             this.lbTitle.TabIndex = 2;
             this.lbTitle.Text = "DOOM";
             this.lbTitle.Visible = false;
-            this.lbTitle.Click += new System.EventHandler(this.lbTitle_Click);
             // 
             // btnStart
             // 
@@ -98,7 +97,6 @@ namespace Doom_Project
             this.lbSubtitle.Size = new System.Drawing.Size(183, 24);
             this.lbSubtitle.TabIndex = 5;
             this.lbSubtitle.Text = "A DOOM TRIBUTE";
-            this.lbSubtitle.Click += new System.EventHandler(this.lbSubtitle_Click);
             // 
             // Main
             // 

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 namespace Doom_Project
 {
     // ================================================================
-    //  DEBUGGING MAP - asa tan-awa kung mo break ang code atay ra HAHAHHAHA 
+    //  DEBUGGING MAP - where to look when code breaks
     // ================================================================
     //
     //  Game loop runs 60x per second, each tick does this:
@@ -21,7 +21,7 @@ namespace Doom_Project
     //           -> Player.UpdateWeapon()   [Player.cs]   - weapon animation + cooldown
     //           -> EnemyAI.UpdateEnemies() [EnemyAI.cs]  - enemy AI + attacks
     //           -> EnemyAI.UpdatePickups() [EnemyAI.cs]  - health/ammo pickup
-    //           -> EnemyAI.AllEnemiesDead()[EnemyAI.cs]  - win check
+    //           -> EnemyAI.CheckWave()     [EnemyAI.cs]  - wave system
     //      -> Renderer.RenderFrame()      [Renderer.cs]  - draw sky/floor/walls/sprites
     //      -> Renderer.Present()          [Renderer.cs]  - copy pixels to bitmap
     //      -> Invalidate()                - tells WinForms to repaint
@@ -42,8 +42,7 @@ namespace Doom_Project
     //
     //  Data classes (Enemy, EnemyType, etc.): Data.cs
     //  File loading (textures, sprites, map): Loader.cs
-    //  Sound (PlayWav, StopAllSounds):        Audio.cs
-    //  version 0.1 - raven
+    //  Sound (PlayMusic, PlayEffect):          Audio.cs
     //
     // ================================================================
 
@@ -89,7 +88,7 @@ namespace Doom_Project
         internal readonly Bitmap _frame = new Bitmap(RenderW, RenderH, PixelFormat.Format32bppArgb);
 
         // nearest wall distance for each screen column
-        // important ni for sprite occlusion (enemies behind walls get hidden)
+        // used for sprite occlusion (enemies behind walls get hidden)
         internal readonly double[] _wallDist = new double[RenderW];
 
         // weapon animation
@@ -172,6 +171,7 @@ namespace Doom_Project
 
         public Game()
         {
+            // window setup
             Text = "DOOM - raven edition";
             Icon = new Icon(Path.Combine(Application.StartupPath, "resources", "images", "logo.ico"));
             WindowState = FormWindowState.Maximized;
@@ -225,7 +225,7 @@ namespace Doom_Project
             _gameOverImg = Loader.LoadImageOrNull(Path.Combine(res, "textures", "game_over.png"));
             _winImg = Loader.LoadImageOrNull(Path.Combine(res, "textures", "win.png"));
 
-            // start theme music (loops forever, mciSendString keeps it alive even when effects play)
+            // start theme music (loops forever)
             Audio.PlayMusic(Path.Combine(_soundDir, "theme.wav"));
 
             // create all the modules
@@ -261,10 +261,12 @@ namespace Doom_Project
 
         private void GameLoop_Tick(object sender, EventArgs e)
         {
+            // don't do anything if game is closing
             if (!_running)
             {
                 return;
             }
+
             // calculate time since last frame
             _dt = _clock.Elapsed.TotalSeconds;
             _clock.Restart();
@@ -335,8 +337,10 @@ namespace Doom_Project
 
             // update all enemies (AI, movement, attacks)
             _enemyAI.UpdateEnemies();
+
             // update pickups
             _enemyAI.UpdatePickups();
+
             // check wave status (spawn next wave when all dead)
             _enemyAI.CheckWave();
         }
@@ -348,9 +352,11 @@ namespace Doom_Project
         protected override void OnPaint(PaintEventArgs e)
         {
             Graphics g = e.Graphics;
+
             // NearestNeighbor = crispy pixels, no blur when scaling up
             g.InterpolationMode = InterpolationMode.NearestNeighbor;
             g.PixelOffsetMode = PixelOffsetMode.Half;
+
             // draw the 3D scene (the bitmap we rendered into)
             g.DrawImage(_frame, new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
 
@@ -390,18 +396,23 @@ namespace Doom_Project
         //  HIGH SCORE - save best score to file
         // ================================================================
 
-        private string HighScorePath
+        // get the file path where we save the high score
+        private string GetHighScorePath()
         {
-            get { return Path.Combine(Application.StartupPath, "highscore.txt"); }
+            return Path.Combine(Application.StartupPath, "highscore.txt");
         }
 
+        // load high score from file (called once at game start)
         internal void LoadHighScore()
         {
             try
             {
-                if (File.Exists(HighScorePath))
+                string path = GetHighScorePath();
+                if (File.Exists(path))
                 {
-                    string[] parts = File.ReadAllText(HighScorePath).Split(',');
+                    // file format is "score,wave" (e.g. "1500,5")
+                    string content = File.ReadAllText(path);
+                    string[] parts = content.Split(',');
                     if (parts.Length == 2)
                     {
                         int.TryParse(parts[0], out _highScore);
@@ -412,15 +423,19 @@ namespace Doom_Project
             catch { }
         }
 
+        // save high score to file (called when player dies)
         internal void SaveHighScore()
         {
             try
             {
-                File.WriteAllText(HighScorePath, _score + "," + _wave);
+                string path = GetHighScorePath();
+                string content = _score + "," + _wave;
+                File.WriteAllText(path, content);
             }
             catch { }
         }
 
+        // check if current score beats the high score
         internal bool IsNewHighScore()
         {
             return _score > _highScore;
@@ -439,6 +454,7 @@ namespace Doom_Project
             Cursor.Show();              // show cursor again
             Audio.StopAllSounds();      // stop music
 
+            // dispose all images to free memory
             _frame.Dispose();
             foreach (Image frame in _weaponFrames)
             {
@@ -466,5 +482,3 @@ namespace Doom_Project
         }
     }
 }
-
-// Tribute to rene batterbonia
