@@ -56,6 +56,37 @@ namespace Doom_Project
                 }
             }
 
+            // draw enemies (red dots)
+            foreach (Enemy e in _g._enemies)
+            {
+                if (e.State == "dead")
+                {
+                    continue;
+                }
+                int ex = pad + (int)(e.X * cell);
+                int ey = pad + (int)(e.Y * cell);
+                using (SolidBrush enemyDot = new SolidBrush(Color.FromArgb(200, 255, 50, 50)))
+                {
+                    g.FillEllipse(enemyDot, ex - 2, ey - 2, 4, 4);
+                }
+            }
+
+            // draw pickups (yellow dots for health, blue for ammo)
+            foreach (PickupItem p in _g._pickups)
+            {
+                if (p.Taken)
+                {
+                    continue;
+                }
+                int ppx = pad + (int)(p.X * cell);
+                int ppy = pad + (int)(p.Y * cell);
+                Color dotColor = p.Type == "health" ? Color.FromArgb(180, 255, 255, 0) : Color.FromArgb(180, 80, 180, 255);
+                using (SolidBrush pickupDot = new SolidBrush(dotColor))
+                {
+                    g.FillRectangle(pickupDot, ppx - 1, ppy - 1, 3, 3);
+                }
+            }
+
             // draw border
             using (GraphicsPath path = RoundedRect(panel, 6))
             {
@@ -63,6 +94,23 @@ namespace Doom_Project
                 {
                     g.DrawPath(border, path);
                 }
+            }
+
+            // draw player dot (green circle at your position)
+            int px = pad + (int)(_g._playerX * cell);
+            int py = pad + (int)(_g._playerY * cell);
+            using (SolidBrush playerDot = new SolidBrush(Color.FromArgb(220, 0, 255, 0)))
+            {
+                g.FillEllipse(playerDot, px - 2, py - 2, 5, 5);
+            }
+
+            // draw direction line (shows where youre looking)
+            double dirLen = 8;
+            int dx = (int)(Math.Cos(_g._angle) * dirLen);
+            int dy = (int)(Math.Sin(_g._angle) * dirLen);
+            using (Pen dirPen = new Pen(Color.FromArgb(180, 0, 255, 0), 1.5f))
+            {
+                g.DrawLine(dirPen, px, py, px + dx, py + dy);
             }
         }
 
@@ -150,6 +198,44 @@ namespace Doom_Project
             // draw the actual numbers using digit images
             DrawNumber(g, _g._health.ToString(), hpRect.X + 10, hpRect.Y + 28, 20);
             DrawNumber(g, _g._ammo.ToString(), ammoRect.X + 10, ammoRect.Y + 28, 20);
+
+            // draw wave number at top center
+            using (Font font = new Font(FontFamily.GenericSansSerif, 18, FontStyle.Bold))
+            {
+                using (SolidBrush gold = new SolidBrush(Color.FromArgb(255, 214, 84)))
+                {
+                    string waveText = "WAVE " + _g._wave;
+                    SizeF waveSize = g.MeasureString(waveText, font);
+                    float waveX = (_g.ClientSize.Width - waveSize.Width) / 2;
+                    g.DrawString(waveText, font, gold, waveX, 10);
+                }
+            }
+
+            // draw score at top right
+            using (Font font = new Font(FontFamily.GenericSansSerif, 14, FontStyle.Bold))
+            {
+                using (SolidBrush gold = new SolidBrush(Color.FromArgb(255, 214, 84)))
+                {
+                    string scoreText = "SCORE: " + _g._score;
+                    SizeF scoreSize = g.MeasureString(scoreText, font);
+                    g.DrawString(scoreText, font, gold, _g.ClientSize.Width - scoreSize.Width - 16, 14);
+                }
+            }
+
+            // draw wave clear message
+            if (_g._waveClear)
+            {
+                using (Font font = new Font(FontFamily.GenericSansSerif, 24, FontStyle.Bold))
+                {
+                    using (SolidBrush flash = new SolidBrush(Color.FromArgb(200, 255, 100, 100)))
+                    {
+                        string clearText = "WAVE " + _g._wave + " CLEAR!";
+                        SizeF clearSize = g.MeasureString(clearText, font);
+                        float cx = (_g.ClientSize.Width - clearSize.Width) / 2;
+                        g.DrawString(clearText, font, flash, cx, _g.ClientSize.Height / 2 - 40);
+                    }
+                }
+            }
         }
 
         // draw a dark panel with gold border

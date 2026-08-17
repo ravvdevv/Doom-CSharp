@@ -28,7 +28,15 @@ namespace Doom_Project
             _g._pressed.Add(e.KeyCode);   // remember this key is held down
             if (e.KeyCode == Keys.Escape)
             {
-                _g.Close();  // exit game
+                DialogResult result = MessageBox.Show(
+                    "Are you sure you want to quit?",
+                    "Quit Game",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    _g.Close();
+                }
             }
             if (e.KeyCode == Keys.M)
             {
@@ -256,12 +264,7 @@ namespace Doom_Project
             {
                 return;
             }
-            // can't shoot if out of ammo
-            if (_g._ammo <= 0)
-            {
-                return;
-            }
-            _g._ammo--;                    // use one ammo
+            // no ammo check - infinite ammo
             _g._shooting = true;           // start weapon animation
             _g._fireCooldown = Game.FireCooldown;  // set cooldown (0.7 seconds)
             _g._weaponTimer = 0;

@@ -205,6 +205,7 @@ namespace Doom_Project
                 new string[] { "0" },                      0.35,
                 new string[] { "POSSM0", "POSSN0", "POSSO0", "POSSP0", "POSSQ0", "POSSR0", "POSSS0", "POSST0", "POSSU0" }, 0.08,
                 0.8, 100, 10, 0.7, 1.6);
+            types["soldier"].Name = "soldier";
 
             types["caco"] = LoadEnemyType(
                 Path.Combine(npc, "caco_demon"),
@@ -214,6 +215,7 @@ namespace Doom_Project
                 new string[] { "0", "1" },                                   0.2,
                 new string[] { "0", "1", "2", "3", "4", "5" },              0.12,
                 1.3, 150, 15, 0.9, 1.7);
+            types["caco"].Name = "caco";
 
             types["soul"] = LoadEnemyType(
                 Path.Combine(npc, "lost_soul"),
@@ -223,6 +225,7 @@ namespace Doom_Project
                 new string[] { "0" },                  0.3,
                 new string[] { "0", "1", "2", "3" },  0.15,
                 2.2, 50, 8, 0.8, 1.2);
+            types["soul"].Name = "soul";
 
             types["cyber"] = LoadEnemyType(
                 Path.Combine(npc, "cyber_demon"),
@@ -232,6 +235,7 @@ namespace Doom_Project
                 new string[] { "0" },                  0.3,
                 new string[] { "0", "1", "2", "3", "4", "5" }, 0.12,
                 0.6, 400, 25, 1.5, 2.0);
+            types["cyber"].Name = "cyber";
 
             return types;
         }

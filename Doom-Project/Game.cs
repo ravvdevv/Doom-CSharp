@@ -59,7 +59,7 @@ namespace Doom_Project
         internal const double WeaponFrameTime = 0.05;   // seconds between weapon anim frames
         internal const double WeaponShootRange = 20;    // how far shotgun pellets can hit (tiles)
         internal const double FireCooldown = 0.7;       // seconds between shots
-        internal const double EnemyAggroRange = 8;      // how far enemies can see you (tiles)
+        internal const double EnemyAggroRange = 50;     // how far enemies can see you (tiles)
         internal const double EnemyHitRadius = 0.4;     // enemy hitbox width (tiles)
 
         // ================================================================
@@ -120,9 +120,17 @@ namespace Doom_Project
         // blood flash overlay
         internal double _bloodAlpha;           // red overlay opacity (0=invisible, 1=full red)
 
+        // wave system - endless, gets harder each wave
+        internal int _wave = 1;               // current wave number
+        internal int _score = 0;              // total score
+        internal int _enemiesKilled = 0;      // enemies killed this wave
+        internal double _waveDelay = 0;       // seconds before next wave spawns
+        internal bool _waveClear = false;     // true when all enemies dead, waiting for next wave
+
         // game state - controls whether we're still playing
         internal string _gameState = "playing";  // "playing", "gameover", or "win"
         internal double _stateTimer = 4.0;       // seconds before closing after game over/win
+        internal volatile bool _running = true;  // false = shutting down, skip all rendering
 
         // all enemies currently in the level
         internal readonly List<Enemy> _enemies = new List<Enemy>();
@@ -157,6 +165,7 @@ namespace Doom_Project
         public Game()
         {
             Text = "DOOM - raven edition";
+            Icon = new Icon(Path.Combine(Application.StartupPath, "resources", "images", "logo.ico"));
             WindowState = FormWindowState.Maximized;
             DoubleBuffered = true;
             BackColor = Color.Black;
@@ -241,6 +250,10 @@ namespace Doom_Project
 
         private void GameLoop_Tick(object sender, EventArgs e)
         {
+            if (!_running)
+            {
+                return;
+            }
             // calculate time since last frame
             _dt = _clock.Elapsed.TotalSeconds;
             _clock.Restart();
@@ -301,13 +314,8 @@ namespace Doom_Project
             _enemyAI.UpdateEnemies();
             // update pickups
             _enemyAI.UpdatePickups();
-
-            // check if all enemies are dead
-            if (_enemyAI.AllEnemiesDead())
-            {
-                _gameState = "win";
-                _stateTimer = 4.0;
-            }
+            // check wave status (spawn next wave when all dead)
+            _enemyAI.CheckWave();
         }
 
         // ================================================================
@@ -361,6 +369,7 @@ namespace Doom_Project
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            _running = false;            // stop game loop immediately
             _loop.Stop();
             _loop.Dispose();
             _clock.Stop();

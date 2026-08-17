@@ -1,58 +1,71 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using NAudio.Wave;
 
 namespace Doom_Project
 {
-    // ================================================================
-    //  AUDIO - play sounds and music using Windows API
-    //  by raven
-    //
-    //  two separate systems:
-    //    mciSendString = background music (can loop without being killed)
-    //    PlaySound     = sound effects (shotgun, pain, etc)
-    // ================================================================
-
     public static class Audio
     {
-        // ============================================================
-        //  MUSIC - uses mciSendString (Media Control Interface)
-        //  this can play music in the background while effects play
-        // ============================================================
-
-        [DllImport("winmm.dll")]
-        private static extern int mciSendString(string command, string buffer, int bufferSize, IntPtr hwndCallback);
+        private static WaveOutEvent _musicPlayer;
+        private static AudioFileReader _musicReader;
 
         public static void PlayMusic(string path)
         {
             if (!File.Exists(path))
             {
+                MessageBox.Show("Theme file not found: " + path);
                 return;
             }
-            // close any previous music first
-            mciSendString("close music", null, 0, IntPtr.Zero);
-            // open the wav file as an alias called "music"
-            mciSendString("open \"" + path + "\" type waveaudio alias music", null, 0, IntPtr.Zero);
-            // play it in a loop
-            mciSendString("play music repeat", null, 0, IntPtr.Zero);
+            StopMusic();
+            try
+            {
+                _musicReader = new AudioFileReader(path);
+                _musicReader.Volume = 1.0f;
+                _musicPlayer = new WaveOutEvent();
+                _musicPlayer.Init(_musicReader);
+                _musicPlayer.PlaybackStopped += OnMusicStopped;
+                _musicPlayer.Play();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Music error: " + ex.Message + "\n" + ex.InnerException?.Message);
+            }
+        }
+
+        private static void OnMusicStopped(object sender, StoppedEventArgs e)
+        {
+            if (e.Exception != null)
+            {
+                System.Diagnostics.Debug.WriteLine("Music stopped with error: " + e.Exception.Message);
+            }
+            // loop the music
+            if (_musicReader != null && _musicPlayer != null)
+            {
+                try
+                {
+                    _musicReader.Position = 0;
+                    _musicPlayer.Play();
+                }
+                catch { }
+            }
         }
 
         public static void StopMusic()
         {
-            mciSendString("stop music", null, 0, IntPtr.Zero);
-            mciSendString("close music", null, 0, IntPtr.Zero);
+            if (_musicPlayer != null)
+            {
+                _musicPlayer.PlaybackStopped -= OnMusicStopped;
+                _musicPlayer.Stop();
+                _musicPlayer.Dispose();
+                _musicPlayer = null;
+            }
+            if (_musicReader != null)
+            {
+                _musicReader.Dispose();
+                _musicReader = null;
+            }
         }
-
-        // ============================================================
-        //  EFFECTS - uses PlaySound (classic, simple, one at a time)
-        //  each new effect replaces the previous one, thats fine
-        // ============================================================
-
-        [DllImport("winmm.dll")]
-        private static extern bool PlaySound(string pszSound, IntPtr hmod, uint fdwSound);
-
-        private const uint SND_ASYNC = 0x0001;
-        private const uint SND_FILENAME = 0x00020000;
 
         public static void PlayEffect(string path)
         {
@@ -60,13 +73,28 @@ namespace Doom_Project
             {
                 return;
             }
-            PlaySound(path, IntPtr.Zero, SND_FILENAME | SND_ASYNC);
+            try
+            {
+                var reader = new AudioFileReader(path);
+                reader.Volume = 1.0f;
+                var player = new WaveOutEvent();
+                player.Init(reader);
+                player.PlaybackStopped += (s, e) =>
+                {
+                    player.Dispose();
+                    reader.Dispose();
+                };
+                player.Play();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Effect error: " + ex.Message);
+            }
         }
 
         public static void StopAllSounds()
         {
             StopMusic();
-            PlaySound(null, IntPtr.Zero, 0);
         }
     }
 }

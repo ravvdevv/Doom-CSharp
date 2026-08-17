@@ -23,6 +23,8 @@ namespace Doom_Project
     // blueprint for one enemy kind, shared by all enemies of that type
     public class EnemyType
     {
+        public string Name;              // "soldier", "caco", etc.
+
         // animation frames for each state
         public List<SpriteFrame> Idle;     // standing still frames
         public List<SpriteFrame> Walk;     // walking frames

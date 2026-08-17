@@ -25,26 +25,17 @@ namespace Doom_Project
 
         public void SetupLevel()
         {
-            // spawn all enemies
-            // format: SpawnEnemy("type", x, y)
-            SpawnEnemy("soldier", 4.5, 5.5);
-            SpawnEnemy("soldier", 20.5, 5.5);
-            SpawnEnemy("soldier", 31.5, 10.5);
-            SpawnEnemy("soldier", 15.5, 16.5);
-            SpawnEnemy("soldier", 20.5, 25.5);
-            SpawnEnemy("soldier", 8.5, 29.5);
-            SpawnEnemy("soldier", 35.5, 30.5);
-            SpawnEnemy("caco", 13.5, 9.5);
-            SpawnEnemy("caco", 28.5, 21.5);
-            SpawnEnemy("soul", 5.5, 18.5);
-            SpawnEnemy("soul", 24.5, 13.5);
-            SpawnEnemy("cyber", 31.5, 26.5);
-
-            // spawn pickups
+            // spawn initial pickups
             _g._pickups.Add(new PickupItem { X = 10.5, Y = 3.5, Type = "health" });
             _g._pickups.Add(new PickupItem { X = 3.5, Y = 20.5, Type = "ammo" });
             _g._pickups.Add(new PickupItem { X = 30.5, Y = 20.5, Type = "health" });
             _g._pickups.Add(new PickupItem { X = 20.5, Y = 9.5, Type = "ammo" });
+
+            // spawn wave 1
+            _g._wave = 1;
+            _g._score = 0;
+            _g._enemiesKilled = 0;
+            SpawnWave(1);
         }
 
         private void SpawnEnemy(string type, double x, double y)
@@ -221,6 +212,7 @@ namespace Doom_Project
                 e.State = "death";
                 e.StateTime = 0;
                 e.Frame = 0;
+                AddScore(e.Type.Name);
             }
         }
 
@@ -247,7 +239,7 @@ namespace Doom_Project
                     }
                     else
                     {
-                        _g._ammo = Math.Min(99, _g._ammo + 8);       // get 8 ammo, max 99
+                        _g._ammo = 8;          // refill ammo to 8
                     }
                     p.Taken = true;  // mark as collected
                 }
@@ -255,19 +247,135 @@ namespace Doom_Project
         }
 
         // ================================================================
-        //  WIN CHECK - are all enemies dead?
+        //  WAVE SYSTEM - endless waves, each one harder than the last
         // ================================================================
 
-        public bool AllEnemiesDead()
+        public void CheckWave()
         {
+            // check if all enemies are dead
+            bool allDead = true;
             foreach (Enemy e in _g._enemies)
             {
                 if (e.State != "dead")
                 {
-                    return false;
+                    allDead = false;
+                    break;
                 }
             }
-            return true;
+
+            if (allDead && !_g._waveClear)
+            {
+                // wave just cleared - start countdown to next wave
+                _g._waveClear = true;
+                _g._waveDelay = 3.0;  // 3 seconds between waves
+            }
+
+            if (_g._waveClear)
+            {
+                _g._waveDelay -= _g._dt;
+                if (_g._waveDelay <= 0)
+                {
+                    // spawn next wave
+                    _g._wave++;
+                    _g._waveClear = false;
+                    SpawnWave(_g._wave);
+                }
+            }
+        }
+
+        private void SpawnWave(int wave)
+        {
+            _g._enemies.Clear();
+
+            // base count increases each wave
+            int soldiers = 4 + wave;
+            int cacos = Math.Min(wave, 8);
+            int souls = Math.Min(wave / 2, 6);
+            int cybers = Math.Min(wave / 3, 4);
+
+            // spawn at random open floor tiles
+            Random rng = new Random();
+
+            for (int i = 0; i < soldiers; i++)
+            {
+                var pos = FindOpenTile(rng);
+                SpawnEnemy("soldier", pos.X, pos.Y);
+            }
+            for (int i = 0; i < cacos; i++)
+            {
+                var pos = FindOpenTile(rng);
+                SpawnEnemy("caco", pos.X, pos.Y);
+            }
+            for (int i = 0; i < souls; i++)
+            {
+                var pos = FindOpenTile(rng);
+                SpawnEnemy("soul", pos.X, pos.Y);
+            }
+            for (int i = 0; i < cybers; i++)
+            {
+                var pos = FindOpenTile(rng);
+                SpawnEnemy("cyber", pos.X, pos.Y);
+            }
+
+            // spawn pickups each wave (resets the old ones)
+            _g._pickups.Clear();
+            int healthPickups = Math.Max(2, 4 - wave / 3);  // fewer health as waves go up
+            int ammoPickups = 2 + wave / 2;                  // more ammo as waves go up
+            for (int i = 0; i < healthPickups; i++)
+            {
+                var pos = FindOpenTile(rng);
+                _g._pickups.Add(new PickupItem { X = pos.X, Y = pos.Y, Type = "health" });
+            }
+            for (int i = 0; i < ammoPickups; i++)
+            {
+                var pos = FindOpenTile(rng);
+                _g._pickups.Add(new PickupItem { X = pos.X, Y = pos.Y, Type = "ammo" });
+            }
+        }
+
+        private PointD FindOpenTile(Random rng)
+        {
+            // keep trying random positions until we find a floor tile
+            // far enough from the player
+            for (int attempt = 0; attempt < 100; attempt++)
+            {
+                int c = rng.Next(2, _g._cols - 2);
+                int r = rng.Next(2, _g._rows - 2);
+                if (_g._map[r, c] == '0')
+                {
+                    double dx = c + 0.5 - _g._playerX;
+                    double dy = r + 0.5 - _g._playerY;
+                    if (dx * dx + dy * dy > 25)  // at least 5 tiles from player
+                    {
+                        return new PointD { X = c + 0.5, Y = r + 0.5 };
+                    }
+                }
+            }
+            // fallback: just return somewhere
+            return new PointD { X = 5.5, Y = 5.5 };
+        }
+
+        // simple helper to return x,y without making a whole class
+        private struct PointD
+        {
+            public double X;
+            public double Y;
+        }
+
+        // ================================================================
+        //  SCORE - called when an enemy dies
+        // ================================================================
+
+        public void AddScore(string enemyType)
+        {
+            switch (enemyType)
+            {
+                case "soldier": _g._score += 100; break;
+                case "caco":    _g._score += 200; break;
+                case "soul":    _g._score += 150; break;
+                case "cyber":   _g._score += 500; break;
+            }
+            _g._enemiesKilled++;
         }
     }
 }
