@@ -8,40 +8,64 @@ namespace Doom_Project
     //  AUDIO - play sounds and music using Windows API
     //  by raven
     //
-    //  this is the only way to play .wav files in C# without extra libraries
-    //  i dont fully understand the Windows API part but it works so lets go
+    //  two separate systems:
+    //    mciSendString = background music (can loop without being killed)
+    //    PlaySound     = sound effects (shotgun, pain, etc)
     // ================================================================
 
     public static class Audio
     {
-        // Windows API function for playing sound
-        // DllImport = call a function from a .dll file
+        // ============================================================
+        //  MUSIC - uses mciSendString (Media Control Interface)
+        //  this can play music in the background while effects play
+        // ============================================================
+
         [DllImport("winmm.dll")]
-        private static extern bool PlaySound(string pszSound, IntPtr hmod, uint fdwSound);
+        private static extern int mciSendString(string command, string buffer, int bufferSize, IntPtr hwndCallback);
 
-        // flags for PlaySound
-        private const uint SND_ASYNC = 0x0001;          // play without blocking
-        private const uint SND_FILENAME = 0x00020000;   // path is a file path
-        private const uint SND_LOOP = 0x0008;           // loop the sound
-
-        public static void PlayWav(string path, bool loop)
+        public static void PlayMusic(string path)
         {
-            // if file doesnt exist, just skip (dont crash)
             if (!File.Exists(path))
             {
                 return;
             }
-            uint flags = SND_FILENAME | SND_ASYNC;
-            if (loop)
+            // close any previous music first
+            mciSendString("close music", null, 0, IntPtr.Zero);
+            // open the wav file as an alias called "music"
+            mciSendString("open \"" + path + "\" type waveaudio alias music", null, 0, IntPtr.Zero);
+            // play it in a loop
+            mciSendString("play music repeat", null, 0, IntPtr.Zero);
+        }
+
+        public static void StopMusic()
+        {
+            mciSendString("stop music", null, 0, IntPtr.Zero);
+            mciSendString("close music", null, 0, IntPtr.Zero);
+        }
+
+        // ============================================================
+        //  EFFECTS - uses PlaySound (classic, simple, one at a time)
+        //  each new effect replaces the previous one, thats fine
+        // ============================================================
+
+        [DllImport("winmm.dll")]
+        private static extern bool PlaySound(string pszSound, IntPtr hmod, uint fdwSound);
+
+        private const uint SND_ASYNC = 0x0001;
+        private const uint SND_FILENAME = 0x00020000;
+
+        public static void PlayEffect(string path)
+        {
+            if (!File.Exists(path))
             {
-                flags = flags | SND_LOOP;
+                return;
             }
-            PlaySound(path, IntPtr.Zero, flags);
+            PlaySound(path, IntPtr.Zero, SND_FILENAME | SND_ASYNC);
         }
 
         public static void StopAllSounds()
         {
-            // passing null = stop all sounds
+            StopMusic();
             PlaySound(null, IntPtr.Zero, 0);
         }
     }

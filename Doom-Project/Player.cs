@@ -266,7 +266,7 @@ namespace Doom_Project
             _g._fireCooldown = Game.FireCooldown;  // set cooldown (0.7 seconds)
             _g._weaponTimer = 0;
             _g._weaponIndex = 1;           // show first firing frame
-            Audio.PlayWav(Path.Combine(_g._soundDir, "shotgun.wav"), false);
+            Audio.PlayEffect(Path.Combine(_g._soundDir, "shotgun.wav"));
             FireShotgun();                 // fire 7 pellets
         }
 
@@ -401,7 +401,7 @@ namespace Doom_Project
             }
             _g._health -= damage;       // reduce health
             _g._bloodAlpha = 0.9;       // show blood flash
-            Audio.PlayWav(Path.Combine(_g._soundDir, "player_pain.wav"), false);
+            Audio.PlayEffect(Path.Combine(_g._soundDir, "player_pain.wav"));
             if (_g._health <= 0)
             {
                 _g._health = 0;

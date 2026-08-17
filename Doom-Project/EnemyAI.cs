@@ -157,7 +157,7 @@ namespace Doom_Project
                         e.State = "attack";
                         e.StateTime = 0;
                         e.Frame = 0;
-                        Audio.PlayWav(Path.Combine(_g._soundDir, "npc_attack.wav"), false);
+                        Audio.PlayEffect(Path.Combine(_g._soundDir, "npc_attack.wav"));
                     }
                 }
                 else if (canSee)
@@ -210,14 +210,14 @@ namespace Doom_Project
                 return;
             }
             e.Health -= damage;  // reduce health
-            Audio.PlayWav(Path.Combine(_g._soundDir, "npc_pain.wav"), false);
+            Audio.PlayEffect(Path.Combine(_g._soundDir, "npc_pain.wav"));
             e.State = "pain";    // stun the enemy briefly
             e.StateTime = 0;
             e.Frame = 0;
             if (e.Health <= 0)
             {
                 // enemy died, play death sound and start death animation
-                Audio.PlayWav(Path.Combine(_g._soundDir, "npc_death.wav"), false);
+                Audio.PlayEffect(Path.Combine(_g._soundDir, "npc_death.wav"));
                 e.State = "death";
                 e.StateTime = 0;
                 e.Frame = 0;

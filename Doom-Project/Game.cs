@@ -208,8 +208,8 @@ namespace Doom_Project
             _gameOverImg = Loader.LoadImageOrNull(Path.Combine(res, "textures", "game_over.png"));
             _winImg = Loader.LoadImageOrNull(Path.Combine(res, "textures", "win.png"));
 
-            // start theme music (loops forever, like a dark raven's call lol)
-            Audio.PlayWav(Path.Combine(_soundDir, "theme.wav"), true);
+            // start theme music (loops forever, mciSendString keeps it alive even when effects play)
+            Audio.PlayMusic(Path.Combine(_soundDir, "theme.wav"));
 
             // create all the modules
             _player = new Player(this);
