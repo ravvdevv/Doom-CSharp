@@ -109,17 +109,17 @@ namespace Doom_Project
         internal readonly Timer _loop = new Timer();        // fires GameLoop_Tick 60x/sec
         internal readonly Stopwatch _clock = new Stopwatch(); // measures time between frames
         internal double _dt = 1.0 / 60.0;  // time since last frame in seconds, very important
-        internal bool _showMinimap;                  // toggle with M key
+        internal bool _showMinimap = true;                  // toggle with M key
         internal Point _lastMouse;                   // last mouse position for recentering
 
         // player health and ammo
         internal int _health = 100;                  // 0 = game over
-        internal int _ammo = 32;                     // 0 = can't shoot
+        internal int _ammo = 8;                     // 0 = can't shoot
 
         // blood flash overlay
         internal double _bloodAlpha;           // red overlay opacity (0=invisible, 1=full red)
 
-        // wave system - endless, gets harder each wave
+        // wave system - endless, gets harder each wave samot kagahi dawg
         internal int _wave = 1;               // current wave number
         internal int _score = 0;              // total score
         internal int _enemiesKilled = 0;      // enemies killed this wave

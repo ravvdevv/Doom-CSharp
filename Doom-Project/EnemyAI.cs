@@ -244,7 +244,6 @@ namespace Doom_Project
         // ================================================================
         //  PICKUPS - check if player picks up health or ammo
         // ================================================================
-
         public void UpdatePickups()
         {
             foreach (PickupItem p in _g._pickups)
