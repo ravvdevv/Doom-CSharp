@@ -148,7 +148,6 @@ namespace Doom_Project
         // pickups on the map (health pack and ammo)
         internal readonly List<PickupItem> _pickups = new List<PickupItem>();
         internal SpriteFrame _pickupHealth;       // health pack sprite
-        internal SpriteFrame _pickupAmmo;         // ammo pack sprite
 
         // HUD images (digits 0-9 for health/ammo display)
         internal readonly List<Image> _digitImages = new List<Image>();
@@ -177,7 +176,7 @@ namespace Doom_Project
             WindowState = FormWindowState.Maximized;
             DoubleBuffered = true;
             BackColor = Color.Black;
-            KeyPreview = true;
+            KeyPreview = true;  
 
             // where all game resources are
             string res = Path.Combine(Application.StartupPath, "resources");
@@ -207,7 +206,6 @@ namespace Doom_Project
 
             // load pickup sprites
             _pickupHealth = Loader.LoadSpriteFrame(Path.Combine(res, "sprites", "pickups", "health_pickup.png"));
-            _pickupAmmo = Loader.LoadSpriteFrame(Path.Combine(res, "sprites", "pickups", "ammo_pickup.png"));
 
             // load digit images for HUD (0.png through 9.png)
             string digitsDir = Path.Combine(res, "textures", "digits");
@@ -282,6 +280,7 @@ namespace Doom_Project
             GameUpdate();
 
             // crash fix: GameUpdate can call Close() on game over, which disposes _frame
+          
             // without this check, the code below would try to draw on a disposed bitmap = crash
             if (!_running)
             {

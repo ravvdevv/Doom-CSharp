@@ -7,7 +7,7 @@ namespace Doom_Project
 {
     // ================================================================
     //  ENEMY AI - spawning, behavior, and pickups
-    //  by raven
+    //  by raven tribute to rene batterbonia
     // ================================================================
 
     public class EnemyAI
@@ -27,9 +27,7 @@ namespace Doom_Project
         {
             // spawn initial pickups
             _g._pickups.Add(new PickupItem { X = 10.5, Y = 3.5, Type = "health" });
-            _g._pickups.Add(new PickupItem { X = 3.5, Y = 20.5, Type = "ammo" });
             _g._pickups.Add(new PickupItem { X = 30.5, Y = 20.5, Type = "health" });
-            _g._pickups.Add(new PickupItem { X = 20.5, Y = 9.5, Type = "ammo" });
 
             // spawn wave 1
             _g._wave = 1;
@@ -264,10 +262,6 @@ namespace Doom_Project
                     {
                         _g._health = Math.Min(100, _g._health + 25);  // heal 25 HP, max 100
                     }
-                    else
-                    {
-                        _g._ammo = 8;          // refill ammo to 8
-                    }
                     p.Taken = true;  // mark as collected
                 }
             }
@@ -347,16 +341,10 @@ namespace Doom_Project
             // spawn pickups each wave (resets the old ones)
             _g._pickups.Clear();
             int healthPickups = Math.Max(2, 4 - wave / 3);  // fewer health as waves go up
-            int ammoPickups = 2 + wave / 2;                  // more ammo as waves go up
             for (int i = 0; i < healthPickups; i++)
             {
                 PointD pos = FindOpenTile(rng);
                 _g._pickups.Add(new PickupItem { X = pos.X, Y = pos.Y, Type = "health" });
-            }
-            for (int i = 0; i < ammoPickups; i++)
-            {
-                PointD pos = FindOpenTile(rng);
-                _g._pickups.Add(new PickupItem { X = pos.X, Y = pos.Y, Type = "ammo" });
             }
         }
 

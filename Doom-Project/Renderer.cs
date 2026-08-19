@@ -343,13 +343,13 @@ namespace Doom_Project
                     continue;
                 }
                 SpriteFrame frame;
-                if (p.Type == "ammo")
+                if (p.Type == "health")
                 {
-                    frame = _g._pickupAmmo;
+                    frame = _g._pickupHealth;
                 }
                 else
                 {
-                    frame = _g._pickupHealth;
+                    continue;
                 }
                 if (frame == null)
                 {
