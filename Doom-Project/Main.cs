@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 
@@ -11,7 +10,7 @@ namespace Doom_Project
     //  MAIN MENU - the title screen when you first open the game
     //  by raven
     // tribute to rene batterbonia mr.mvp 67
-    //  shows animated background, glowing title, start/quit buttons
+    //  shows animated background, title, start/quit buttons
     //  after game over, shows your last score briefly
     // ================================================================
 
@@ -20,17 +19,10 @@ namespace Doom_Project
         // background animation - cycles through bg0.png, bg1.png, etc
         private readonly List<Image> _bgFrames = new List<Image>();
         private int _bgIndex;           // which background is currently showing
-        private int _bgNextIndex;       // which background we're fading to
-        private float _bgFadeAlpha = 1f; // fade progress (1 = fully visible, 0 = invisible)
         private readonly Timer _bgSwitchTimer = new Timer();  // when to switch backgrounds
-        private readonly Timer _bgFadeTimer = new Timer();    // fade animation timer
-
 
         // last run score - shows briefly after game over
-        // fades in with gold text, then fades out after 5 seconds
         private Label _lbLastRun;
-        private Timer _lastRunFadeTimer;
-        private float _lastRunAlpha = 0f;
 
         public Main()
         {
@@ -62,9 +54,6 @@ namespace Doom_Project
                 _bgSwitchTimer.Interval = 6000;  // switch every 6 seconds
                 _bgSwitchTimer.Tick += BgSwitchTimer_Tick;
                 _bgSwitchTimer.Start();
-
-                _bgFadeTimer.Interval = 2;  // fade speed
-                _bgFadeTimer.Tick += BgFadeTimer_Tick;
             }
 
             // set up layout and last run label
@@ -88,25 +77,15 @@ namespace Doom_Project
             _lbLastRun.ForeColor = Color.FromArgb(160, 200, 160, 90);
             _lbLastRun.Visible = false;
             Controls.Add(_lbLastRun);
-
-            _lastRunFadeTimer = new Timer();
-            _lastRunFadeTimer.Interval = 30;
-            _lastRunFadeTimer.Tick += LastRunFadeTick;
         }
 
-        // fade out the last run label over time
-        private void LastRunFadeTick(object sender, EventArgs e)
+        // hide the last run label
+        private void HideLastRun(object sender, EventArgs e)
         {
-            _lastRunAlpha -= 0.01f;
-            if (_lastRunAlpha <= 0f)
-            {
-                _lastRunFadeTimer.Stop();
-                _lbLastRun.Visible = false;
-                return;
-            }
-            // update the label color with fading alpha
-            _lbLastRun.ForeColor = Color.FromArgb((int)(160 * _lastRunAlpha), 200, 160, 90);
-            Invalidate();
+            Timer timer = (Timer)sender;
+            timer.Stop();
+            timer.Dispose();
+            _lbLastRun.Visible = false;
         }
 
         // show the last run score below the quit button
@@ -118,17 +97,17 @@ namespace Doom_Project
             }
             _lbLastRun.Text = "Last run: " + score + " pts  |  Wave " + wave;
             _lbLastRun.Visible = true;
-            _lastRunAlpha = 1f;
-            _lbLastRun.ForeColor = Color.FromArgb(160, 200, 160, 90);
 
             // position below quit button
             int x = btnQuit.Left;
             int y = btnQuit.Bottom + 20;
             _lbLastRun.Location = new Point(x, y);
 
-            // show for a few seconds then fade out
-            _lastRunFadeTimer.Stop();
-            _lastRunFadeTimer.Start();
+            // hide after 3 seconds
+            Timer hideTimer = new Timer();
+            hideTimer.Interval = 3000;
+            hideTimer.Tick += HideLastRun;
+            hideTimer.Start();
         }
 
         // ================================================================
@@ -162,7 +141,7 @@ namespace Doom_Project
         }
 
         // ================================================================
-        //  PAINT - draw the menu background and glowing title
+        //  PAINT - draw the menu background
         // ================================================================
 
         protected override void OnPaint(PaintEventArgs e)
@@ -171,58 +150,25 @@ namespace Doom_Project
             if (_bgFrames.Count > 0)
             {
                 Rectangle dest = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
-                e.Graphics.DrawImage(_bgFrames[_bgNextIndex], dest);
-
-                // draw fading old background on top (for crossfade effect)
-                if (_bgFadeAlpha < 1f)
-                {
-                    DrawImageAlpha(e.Graphics, _bgFrames[_bgIndex], dest, _bgFadeAlpha);
-                }
+                e.Graphics.DrawImage(_bgFrames[_bgIndex], dest);
             }
             else
             {
                 base.OnPaint(e);
             }
 
-
-        }
-
-        // draw an image with transparency (alpha = 0 to 1)
-        private static void DrawImageAlpha(Graphics g, Image image, Rectangle dest, float alpha)
-        {
-            using (ImageAttributes attrs = new ImageAttributes())
-            {
-                ColorMatrix cm = new ColorMatrix();
-                cm.Matrix33 = alpha;
-                attrs.SetColorMatrix(cm);
-                g.DrawImage(image, dest, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, attrs);
-            }
         }
 
         // ================================================================
-        //  BACKGROUND CROSSFADE - switch between background images
+        //  BACKGROUND - switch between background images
         // ================================================================
 
         // timer to switch backgrounds
         private void BgSwitchTimer_Tick(object sender, EventArgs e)
         {
-            // pick the next background and start fading to it
-            _bgNextIndex = (_bgIndex + 1) % _bgFrames.Count;
-            _bgFadeTimer.Start();
-        }
-
-        // fade from old background to new one
-        private void BgFadeTimer_Tick(object sender, EventArgs e)
-        {
-            _bgFadeAlpha -= 0.016f / 1.5f;
-            if (_bgFadeAlpha <= 0f)
-            {
-                // fade complete - switch to new background
-                _bgFadeAlpha = 1f;
-                _bgIndex = _bgNextIndex;
-                _bgFadeTimer.Stop();
-            }
-            Invalidate();  // redraw to show the fade
+            // switch to next background instantly
+            _bgIndex = (_bgIndex + 1) % _bgFrames.Count;
+            Invalidate();  // redraw to show new background
         }
 
         // ================================================================
@@ -233,8 +179,6 @@ namespace Doom_Project
         {
             _bgSwitchTimer.Stop();
             _bgSwitchTimer.Dispose();
-            _bgFadeTimer.Stop();
-            _bgFadeTimer.Dispose();
             foreach (Image frame in _bgFrames)
             {
                 frame.Dispose();
