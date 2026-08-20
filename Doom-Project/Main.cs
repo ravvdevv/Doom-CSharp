@@ -10,7 +10,7 @@ namespace Doom_Project
     // ================================================================
     //  MAIN MENU - the title screen when you first open the game
     //  by raven
-    //
+    // tribute to rene batterbonia mr.mvp 67
     //  shows animated background, glowing title, start/quit buttons
     //  after game over, shows your last score briefly
     // ================================================================
