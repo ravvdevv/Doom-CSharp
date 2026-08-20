@@ -24,7 +24,7 @@ namespace Doom_Project
         private float _bgFadeAlpha = 1f; // fade progress (1 = fully visible, 0 = invisible)
         private readonly Timer _bgSwitchTimer = new Timer();  // when to switch backgrounds
         private readonly Timer _bgFadeTimer = new Timer();    // fade animation timer
-        private Point _titlePos;         // where to draw the "DOOM" title
+
 
         // last run score - shows briefly after game over
         // fades in with gold text, then fades out after 5 seconds
@@ -142,23 +142,16 @@ namespace Doom_Project
             const int gapSubtitleButtons = 44;
             const int gapButtons = 16;
 
-            // measure how tall the title text is
-            Size titleSize;
-            using (Graphics g = CreateGraphics())
-            {
-                titleSize = Size.Ceiling(g.MeasureString("DOOM", lbTitle.Font));
-            }
-
             // stack everything vertically in the center of the screen
-            int titleH = titleSize.Height;
+            int titleH = lbTitle.Height;
             int subtitleH = lbSubtitle.Height;
             int btnH = btnStart.Height;
             int totalH = titleH + gapTitleSubtitle + subtitleH + gapSubtitleButtons + btnH + gapButtons + btnH;
             int top = ClientSize.Height / 2 - totalH / 2;
 
             int x = margin;
-            _titlePos = new Point(x, top);
-            lbSubtitle.Location = new Point(x, top + titleH + gapTitleSubtitle);
+            lbTitle.Location = new Point(x, top);
+            lbSubtitle.Location = new Point(lbTitle.Left + lbTitle.Width / 2 - lbSubtitle.Width / 2, top + titleH + gapTitleSubtitle);
             btnStart.Location = new Point(x, top + titleH + gapTitleSubtitle + subtitleH + gapSubtitleButtons);
             btnQuit.Location = new Point(x, btnStart.Bottom + gapButtons);
         }
@@ -191,11 +184,7 @@ namespace Doom_Project
                 base.OnPaint(e);
             }
 
-            // draw the glowing "DOOM" title
-            if (!_titlePos.IsEmpty)
-            {
-                DrawGlowTitle(e.Graphics);
-            }
+
         }
 
         // draw an image with transparency (alpha = 0 to 1)
@@ -207,47 +196,6 @@ namespace Doom_Project
                 cm.Matrix33 = alpha;
                 attrs.SetColorMatrix(cm);
                 g.DrawImage(image, dest, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, attrs);
-            }
-        }
-
-        // ================================================================
-        //  GLOWING TITLE - the "DOOM" text with a fire-like glow
-        // ================================================================
-
-        private void DrawGlowTitle(Graphics g)
-        {
-            const string text = "DOOM";
-            Font font = lbTitle.Font;
-            int x = _titlePos.X;
-            int y = _titlePos.Y;
-
-            // dark shadow behind everything
-            using (Brush shadow = new SolidBrush(Color.FromArgb(180, 20, 10, 5)))
-            {
-                g.DrawString(text, font, shadow, x + 6, y + 6);
-            }
-
-            // draw multiple rings of glow (bigger = more transparent)
-            for (int ring = 6; ring >= 1; ring--)
-            {
-                int alpha = ring == 1 ? 70 : 12;
-                using (Brush glow = new SolidBrush(Color.FromArgb(alpha, 255, 205, 60)))
-                {
-                    // draw 12 copies of the text around each ring
-                    for (int i = 0; i < 12; i++)
-                    {
-                        double a = i / 12.0 * Math.PI * 2;
-                        int dx = (int)Math.Round(Math.Cos(a) * ring * 2.5);
-                        int dy = (int)Math.Round(Math.Sin(a) * ring * 2.5);
-                        g.DrawString(text, font, glow, x + dx, y + dy);
-                    }
-                }
-            }
-
-            // bright gold core on top
-            using (Brush core = new SolidBrush(Color.FromArgb(255, 255, 214, 84)))
-            {
-                g.DrawString(text, font, core, x, y);
             }
         }
 

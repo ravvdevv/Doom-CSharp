@@ -47,7 +47,7 @@ namespace Doom_Project
             this.btnQuit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnQuit.Font = new System.Drawing.Font("Arial", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnQuit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(190)))), ((int)(((byte)(130)))));
-            this.btnQuit.Location = new System.Drawing.Point(270, 320);
+            this.btnQuit.Location = new System.Drawing.Point(76, 423);
             this.btnQuit.Name = "btnQuit";
             this.btnQuit.Size = new System.Drawing.Size(260, 46);
             this.btnQuit.TabIndex = 1;
@@ -61,12 +61,11 @@ namespace Doom_Project
             this.lbTitle.BackColor = System.Drawing.Color.Transparent;
             this.lbTitle.Font = new System.Drawing.Font("Impact", 64F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(60)))), ((int)(((byte)(30)))));
-            this.lbTitle.Location = new System.Drawing.Point(269, 33);
+            this.lbTitle.Location = new System.Drawing.Point(54, 116);
             this.lbTitle.Name = "lbTitle";
             this.lbTitle.Size = new System.Drawing.Size(307, 132);
             this.lbTitle.TabIndex = 2;
             this.lbTitle.Text = "DOOM";
-            this.lbTitle.Visible = false;
             // 
             // btnStart
             // 
@@ -78,7 +77,7 @@ namespace Doom_Project
             this.btnStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnStart.Font = new System.Drawing.Font("Arial", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnStart.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(190)))), ((int)(((byte)(130)))));
-            this.btnStart.Location = new System.Drawing.Point(270, 240);
+            this.btnStart.Location = new System.Drawing.Point(76, 332);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(260, 46);
             this.btnStart.TabIndex = 3;
@@ -92,7 +91,7 @@ namespace Doom_Project
             this.lbSubtitle.BackColor = System.Drawing.Color.Transparent;
             this.lbSubtitle.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(180)))), ((int)(((byte)(90)))));
-            this.lbSubtitle.Location = new System.Drawing.Point(300, 150);
+            this.lbSubtitle.Location = new System.Drawing.Point(119, 261);
             this.lbSubtitle.Name = "lbSubtitle";
             this.lbSubtitle.Size = new System.Drawing.Size(183, 24);
             this.lbSubtitle.TabIndex = 5;
@@ -105,7 +104,7 @@ namespace Doom_Project
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.CancelButton = this.btnQuit;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1116, 596);
             this.Controls.Add(this.lbSubtitle);
             this.Controls.Add(this.lbTitle);
             this.Controls.Add(this.btnQuit);
