@@ -221,15 +221,13 @@ namespace Doom_Project
 
         public void DamageEnemy(Enemy e, int damage)
         {
-            if (e.State == "dead")
+            // dead AND dying enemies cant be shot for score again
+            if (e.State == "dead" || e.State == "death")
             {
                 return;
             }
             e.Health -= damage;  // reduce health
-            Audio.PlayEffect(Path.Combine(_g._soundDir, "npc_pain.wav"));
-            e.State = "pain";    // stun the enemy briefly
-            e.StateTime = 0;
-            e.Frame = 0;
+
             if (e.Health <= 0)
             {
                 // enemy died, play death sound and start death animation
@@ -238,7 +236,21 @@ namespace Doom_Project
                 e.StateTime = 0;
                 e.Frame = 0;
                 AddScore(e.Type.Name);
+                return;
             }
+
+            // if the enemy is mid-attack, let it finish its attack animation
+            // so it doesnt show the hurt sprite right when it tries to shoot
+            if (e.State == "attack")
+            {
+                return;
+            }
+
+            // otherwise stun the enemy with the hurt animation
+            Audio.PlayEffect(Path.Combine(_g._soundDir, "npc_pain.wav"));
+            e.State = "pain";    // stun the enemy briefly
+            e.StateTime = 0;
+            e.Frame = 0;
         }
 
         // ================================================================

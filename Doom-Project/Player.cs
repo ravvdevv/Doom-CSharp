@@ -42,6 +42,10 @@ namespace Doom_Project
             {
                 _g._showMinimap = !_g._showMinimap;  // toggle minimap
             }
+            if (e.KeyCode == Keys.R)
+            {
+                StartReload();  // press R to reload the shotgun
+            }
         }
 
         public void OnKeyUp(object sender, KeyEventArgs e)
@@ -230,6 +234,18 @@ namespace Doom_Project
                 _g._fireCooldown -= _g._dt;
             }
 
+            // reloading: wait until reload time is done, then refill the ammo
+            if (_g._reloading)
+            {
+                _g._reloadTimer += _g._dt;
+                if (_g._reloadTimer >= Game.ReloadTime)
+                {
+                    _g._ammo = Game.AmmoMax;      // refill the shotgun
+                    _g._reloading = false;        // done reloading
+                }
+                return;  // cant shoot or animate weapon while reloading
+            }
+
             // animate weapon if currently shooting
             if (_g._shooting)
             {
@@ -244,10 +260,37 @@ namespace Doom_Project
             }
         }
 
+        // start reloading the shotgun
+        private void StartReload()
+        {
+            // only reload if the game is playing
+            if (_g._gameState != "playing")
+            {
+                return;
+            }
+            // only reload if not already reloading
+            if (_g._reloading)
+            {
+                return;
+            }
+            // only reload if the shotgun isnt already full
+            if (_g._ammo >= Game.AmmoMax)
+            {
+                return;
+            }
+            _g._reloading = true;   // start reloading
+            _g._reloadTimer = 0;    // reset the reload timer
+        }
+
         private void Shoot()
         {
             // can't shoot if game is over
             if (_g._gameState != "playing")
+            {
+                return;
+            }
+            // can't shoot while reloading
+            if (_g._reloading)
             {
                 return;
             }
@@ -264,11 +307,17 @@ namespace Doom_Project
             {
                 return;
             }
-            // no ammo check - infinite ammo
+            // out of ammo - auto reload instead of shooting
+            if (_g._ammo <= 0)
+            {
+                StartReload();
+                return;
+            }
             _g._shooting = true;           // start weapon animation
             _g._fireCooldown = Game.FireCooldown;  // set cooldown (0.7 seconds)
             _g._weaponTimer = 0;
             _g._weaponIndex = 1;           // show first firing frame
+            _g._ammo -= 1;                 // use up one shell
             Audio.PlayEffect(Path.Combine(_g._soundDir, "shotgun.wav"));
             FireShotgun();                 // fire 7 pellets
         }

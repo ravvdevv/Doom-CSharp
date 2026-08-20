@@ -503,6 +503,11 @@ namespace Doom_Project
             {
                 return PickFrame(t.Pain, e.StateTime, t.PainRate);
             }
+            // cooldown: waiting between attacks, just stand there looking normal
+            if (e.State == "cooldown")
+            {
+                return PickFrame(t.Idle, 0, t.IdleRate);
+            }
 
             // death uses ClampFrame so it stays on last frame
             return ClampFrame(t.Death, e.Frame);

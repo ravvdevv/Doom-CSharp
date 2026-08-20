@@ -207,6 +207,21 @@ namespace Doom_Project
             DrawNumber(g, _g._health.ToString(), hpRect.X + 10, hpRect.Y + 28, 20);
             DrawNumber(g, _g._ammo.ToString(), ammoRect.X + 10, ammoRect.Y + 28, 20);
 
+            // show a message while reloading (inside the ammo panel)
+            if (_g._reloading)
+            {
+                using (Font font = new Font(FontFamily.GenericSansSerif, 11, FontStyle.Bold))
+                {
+                    using (SolidBrush red = new SolidBrush(Color.FromArgb(255, 120, 80)))
+                    {
+                        string reloadText = "RELOADING...";
+                        SizeF reloadSize = g.MeasureString(reloadText, font);
+                        float rX = ammoRect.Right - reloadSize.Width - 10;  // right side of panel
+                        g.DrawString(reloadText, font, red, rX, ammoRect.Y + 28);
+                    }
+                }
+            }
+
             // draw wave number at top center
             using (Font font = new Font(FontFamily.GenericSansSerif, 18, FontStyle.Bold))
             {

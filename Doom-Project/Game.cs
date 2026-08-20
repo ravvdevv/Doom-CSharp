@@ -58,6 +58,8 @@ namespace Doom_Project
         internal const double WeaponFrameTime = 0.05;   // seconds between weapon anim frames
         internal const double WeaponShootRange = 20;    // how far shotgun pellets can hit (tiles)
         internal const double FireCooldown = 0.7;       // seconds between shots
+        internal const int AmmoMax = 8;                 // shells in the shotgun when full
+        internal const double ReloadTime = 1.5;         // seconds it takes to reload
         internal const double EnemyAggroRange = 50;     // how far enemies can see you (tiles)
         internal const double EnemyHitRadius = 0.4;     // enemy hitbox width (tiles)
 
@@ -97,6 +99,8 @@ namespace Doom_Project
         internal bool _shooting;                     // true while shooting
         internal double _weaponTimer;                // seconds since started shooting
         internal double _fireCooldown;               // seconds before you can shoot again
+        internal bool _reloading;                    // true while reloading
+        internal double _reloadTimer;                // seconds spent reloading so far
 
         // random number generator (for shotgun spread)
         internal readonly Random _rng = new Random();
@@ -176,7 +180,7 @@ namespace Doom_Project
             WindowState = FormWindowState.Maximized;
             DoubleBuffered = true;
             BackColor = Color.Black;
-            KeyPreview = true;  
+            KeyPreview = true;
 
             // where all game resources are
             string res = Path.Combine(Application.StartupPath, "resources");
@@ -280,7 +284,7 @@ namespace Doom_Project
             GameUpdate();
 
             // crash fix: GameUpdate can call Close() on game over, which disposes _frame
-          
+
             // without this check, the code below would try to draw on a disposed bitmap = crash
             if (!_running)
             {
