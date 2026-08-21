@@ -254,7 +254,7 @@ namespace Doom_Project
         }
 
         // ================================================================
-        //  PICKUPS - check if player picks up health or ammo
+        //  PICKUPS - check if player picks up health or ammo wala nay ammo kay akong gi remove kay medyo complex na and buggy sad kaayo
         // ================================================================
         public void UpdatePickups()
         {
@@ -279,12 +279,36 @@ namespace Doom_Project
         }
 
         // ================================================================
-        //  WAVE SYSTEM - endless waves, each one harder than the last
+        //  WAVE SYSTEM - endless waves, each one harder than the last  
         // ================================================================
+
+        // suggestion or improvements tho instead of many enemies spawning make them stronger and faster
 
         public void CheckWave()
         {
+            // wave time limit - clear the wave before the clock runs out or its game over
+            // paused during the wave-clear delay so the 3s break is free
+            if (!_g._waveClear)
+            {
+                _g._waveTimer -= _g._dt;
+                if (_g._waveTimer <= 0)
+                {
+                    _g._waveTimer = 0;
+                    // out of time - same ending as dying (gameover screen, save score)
+                    _g._gameState = "gameover";
+                    _g._stateTimer = 4.0;
+                    if (_g.IsNewHighScore())
+                    {
+                        _g._highScore = _g._score;
+                        _g._highWave = _g._wave;
+                    }
+                    _g.SaveHighScore();
+                    return;
+                }
+            }
+
             // check if all enemies are dead
+
             bool allDead = true;
             foreach (Enemy e in _g._enemies)
             {
@@ -318,6 +342,9 @@ namespace Doom_Project
         private void SpawnWave(int wave)
         {
             _g._enemies.Clear();
+
+            // fresh clock for the new wave (grows each wave since enemy count grows)
+            _g._waveTimer = _g.GetWaveTimeLimit(wave);
 
             // base count increases each wave
             int soldiers = 4 + wave;
@@ -391,7 +418,7 @@ namespace Doom_Project
         // ================================================================
         //  SCORE - called when an enemy dies
         // ================================================================
-
+        // depends kung pila scoring imong want 
         public void AddScore(string enemyType)
         {
             switch (enemyType)

@@ -11,6 +11,8 @@ namespace Doom_Project
     //  by raven
     // ================================================================
 
+    // mas prefer nako manu manu og design kay ma align nako tarung 
+    // 
     public class Hud
     {
         private readonly Game _g;
@@ -212,9 +214,9 @@ namespace Doom_Project
             {
                 using (Font font = new Font(FontFamily.GenericSansSerif, 11, FontStyle.Bold))
                 {
-                    using (SolidBrush red = new SolidBrush(Color.FromArgb(255, 120, 80)))
+                    using (SolidBrush red = new SolidBrush(Color.FromArgb(255, 120, 80))) /// we can use Color.white or red but i prefer this idk 
                     {
-                        string reloadText = "RELOADING...";
+                        string reloadText = "RELOADING...";   // showing signs tho were reloading
                         SizeF reloadSize = g.MeasureString(reloadText, font);
                         float rX = ammoRect.Right - reloadSize.Width - 10;  // right side of panel
                         g.DrawString(reloadText, font, red, rX, ammoRect.Y + 28);
@@ -231,6 +233,28 @@ namespace Doom_Project
                     SizeF waveSize = g.MeasureString(waveText, font);
                     float waveX = (_g.ClientSize.Width - waveSize.Width) / 2;
                     g.DrawString(waveText, font, gold, waveX, 10);
+                }
+            }
+
+            // draw wave timer right below the wave number, e.g. "TIME: 42/90" nahh  gi ilisan nako og Timer : time para clean basahon
+            // turns red when running low on time so para nay indicator
+            if (!_g._waveClear)
+            {
+                int secsLeft = (int)Math.Ceiling(_g._waveTimer);
+                int limitSecs = (int)_g.GetWaveTimeLimit(_g._wave);
+                bool urgent = _g._waveTimer <= 10;
+                using (Font font = new Font(FontFamily.GenericSansSerif, 13, FontStyle.Bold))
+                {
+
+                    // pede raman Color.Red pero Rgb ra akoa
+                    Color c = urgent ? Color.FromArgb(255, 80, 60) : Color.FromArgb(230, 230, 230);
+                    using (SolidBrush brush = new SolidBrush(c))
+                    {
+                        string timeText = "TIME: " + secsLeft;
+                        SizeF timeSize = g.MeasureString(timeText, font);
+                        float tx = (_g.ClientSize.Width - timeSize.Width) / 2;
+                        g.DrawString(timeText, font, brush, tx, 38);
+                    }
                 }
             }
 

@@ -58,11 +58,13 @@ namespace Doom_Project
         internal const double WeaponFrameTime = 0.05;   // seconds between weapon anim frames
         internal const double WeaponShootRange = 20;    // how far shotgun pellets can hit (tiles)
         internal const double FireCooldown = 0.7;       // seconds between shots
-        internal const int AmmoMax = 8;                 // shells in the shotgun when full
+        internal const int AmmoMax = 8;                 // shells in the shotgun when full pero we can change here tho kung how much jud imong i max ammo nimo
         internal const double ReloadTime = 1.5;         // seconds it takes to reload
         internal const double EnemyAggroRange = 50;     // how far enemies can see you (tiles)
         internal const double EnemyHitRadius = 0.4;     // enemy hitbox width (tiles)
-
+        internal const double WaveTimeLimit = 60.0;     // game timer i set to 60
+        internal const double WaveTimeBonus = 10.0;     // why this because every level gets harder plus 10 secs so its fair
+        // instead of 60 sec per wave il just add 10 plus bonus each wave so it wont get
         // ================================================================
         //  FIELDS - stuff the game keeps track of
         // ================================================================
@@ -101,6 +103,8 @@ namespace Doom_Project
         internal double _fireCooldown;               // seconds before you can shoot again
         internal bool _reloading;                    // true while reloading
         internal double _reloadTimer;                // seconds spent reloading so far
+       
+
 
         // random number generator (for shotgun spread)
         internal readonly Random _rng = new Random();
@@ -129,6 +133,7 @@ namespace Doom_Project
         internal int _enemiesKilled = 0;      // enemies killed this wave
         internal double _waveDelay = 0;       // seconds before next wave spawns
         internal bool _waveClear = false;     // true when all enemies dead, waiting for next wave
+        internal double _waveTimer = WaveTimeLimit;  // seconds left to clear the current wave, 0 = game over
 
         // high score - saved to file so it persists between sessions
         internal int _highScore = 0;
@@ -175,9 +180,9 @@ namespace Doom_Project
         public Game()
         {
             // window setup
-            Text = "DOOM - raven edition";
+            Text = "DOOM - raven edition"; // tubig marka ni raven
             Icon = new Icon(Path.Combine(Application.StartupPath, "resources", "images", "logo.ico"));
-            WindowState = FormWindowState.Maximized;
+            WindowState = FormWindowState.Maximized; // i just set to maximized to cool gaming experience kaysa gamay ang screen
             DoubleBuffered = true;
             BackColor = Color.Black;
             KeyPreview = true;
@@ -228,7 +233,7 @@ namespace Doom_Project
             _winImg = Loader.LoadImageOrNull(Path.Combine(res, "textures", "win.png"));
 
             // start theme music (loops forever)
-            Audio.PlayMusic(Path.Combine(_soundDir, "theme.wav"));
+            Audio.PlayMusic(Path.Combine(_soundDir, "theme.wav"));  // why we .wav we can use naman mp3 kaso i have some issue pud
 
             // create all the modules
             _player = new Player(this);
@@ -327,7 +332,7 @@ namespace Doom_Project
             _player.Update();
             _player.UpdateWeapon();
 
-            // blood flash fades over time (1.3 = fade speed)
+            // blood flash fades over time (1.3 = fade speed) u can adjust however you like it 
             // without this, screen stays red forever after getting hit
             if (_bloodAlpha > 0)
             {
@@ -363,7 +368,9 @@ namespace Doom_Project
             // draw the 3D scene (the bitmap we rendered into)
             g.DrawImage(_frame, new Rectangle(0, 0, ClientSize.Width, ClientSize.Height));
 
-            // draw minimap if toggled on with M key
+
+
+            // draw minimap if toggled on with M key but its on by default
             if (_showMinimap)
             {
                 _hud.DrawMinimap(g);
@@ -442,6 +449,13 @@ namespace Doom_Project
         internal bool IsNewHighScore()
         {
             return _score > _highScore;
+        }
+
+        // tldr = more time = more enemies    total time allowed for a given wave - later waves get more clock
+        // because they spawn way more enemies (wave 1 = 60s, wave 5 = 100s, ...) so it add 10 secs each wave clear
+        internal double GetWaveTimeLimit(int wave)
+        {
+            return WaveTimeLimit + (wave - 1) * WaveTimeBonus;
         }
 
         // ================================================================

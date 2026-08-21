@@ -17,7 +17,9 @@ namespace Doom_Project
         public string State;        // what its doing right now (idle/walk/attack/pain/death/dead)
         public double StateTime;    // how many seconds its been in this state
         public int Frame;           // which animation frame its on
-        public bool Remove;         // true if it should be removed from the game
+        public bool Remove;         // true if it should be removed from the game kung dele ma remove mag lag 
+
+        // this is an public class instead of manuallying adding each so its clean code hehe
     }
 
     // blueprint for one enemy kind, shared by all enemies of that type
